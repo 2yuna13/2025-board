@@ -17,7 +17,7 @@ public interface ArticleLikeCountRepository extends JpaRepository<ArticleLikeCou
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<ArticleLikeCount> findLockedByArticleId(Long articleId);
 
-    // 비관적 락
+    // 비관적 락 update 구문
     @Query(
             value = "update article_like_count set like_count = like_count + 1 where article_id = :articleId",
             nativeQuery = true

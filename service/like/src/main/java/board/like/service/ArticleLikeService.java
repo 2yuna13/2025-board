@@ -24,7 +24,7 @@ public class ArticleLikeService {
                 .orElseThrow();
     }
 
-    // 좋아요 생성 - update 구문
+    // 좋아요 추가 - 비관적 락(update 구문)
     @Transactional
     public void likePessimisticLock1(Long articleId, Long userId) {
         articleLikeRepository.save(
@@ -45,7 +45,7 @@ public class ArticleLikeService {
         }
     }
 
-    // 좋아요 취소 - update 구문
+    // 좋아요 취소 - 비관적 락(update 구문)
     @Transactional
     public void unlikePessimisticLock1(Long articleId, Long userId) {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
@@ -55,7 +55,7 @@ public class ArticleLikeService {
                 });
     }
 
-    // 좋아요 생성 - for update + update
+    // 좋아요 추가 - 비관적 락(for update + update)
     @Transactional
     public void likePessimisticLock2(Long articleId, Long userId) {
         articleLikeRepository.save(
@@ -72,7 +72,7 @@ public class ArticleLikeService {
         articleLikeCountRepository.save(articleLikeCount);
     }
 
-    // 좋아요 취소 - for update + update
+    // 좋아요 취소 - 비관적 락(for update + update)
     @Transactional
     public void unlikePessimisticLock2(Long articleId, Long userId) {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
@@ -83,7 +83,7 @@ public class ArticleLikeService {
                 });
     }
 
-    // 좋아요 생성 - 낙관적 락
+    // 좋아요 추가 - 낙관적 락(version 체크)
     @Transactional
     public void likeOptimisticLock(Long articleId, Long userId) {
         articleLikeRepository.save(
@@ -94,18 +94,20 @@ public class ArticleLikeService {
                 )
         );
 
+        // 버전 체크 발생
         ArticleLikeCount articleLikeCount = articleLikeCountRepository.findById(articleId)
                 .orElseGet(() -> ArticleLikeCount.init(articleId, 0L));
         articleLikeCount.increase();
         articleLikeCountRepository.save(articleLikeCount);
     }
 
-    // 좋아요 취소 - 낙관적 락
+    // 좋아요 취소 - 낙관적 락(version 체크)
     @Transactional
     public void unlikeOptimisticLock(Long articleId, Long userId) {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLike -> {
                     articleLikeRepository.delete(articleLike);
+                    // 버전 체크 발생
                     ArticleLikeCount articleLikeCount = articleLikeCountRepository.findById(articleId).orElseThrow();
                     articleLikeCount.decrease();
                 });

@@ -27,7 +27,7 @@ public class ArticleLikeController {
         return articleLikeService.count(articleId);
     }
 
-    // 좋아요 생성 - 비관적 락 update
+    // 좋아요 추가 - 비관적 락(update 구문)
     @PostMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-1")
     public void likePessimisticLock1(
             @PathVariable("articleId") Long articleId,
@@ -36,7 +36,7 @@ public class ArticleLikeController {
         articleLikeService.likePessimisticLock1(articleId, userId);
     }
 
-    // 좋아요 취소 - 비관적 락 update
+    // 좋아요 취소 - 비관적 락(update 구문)
     @DeleteMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-1")
     public void unlikePessimisticLock1(
             @PathVariable("articleId") Long articleId,
@@ -45,7 +45,7 @@ public class ArticleLikeController {
         articleLikeService.unlikePessimisticLock1(articleId, userId);
     }
 
-    // 좋아요 생성 - 비관적 락 for update + update
+    // 좋아요 추가 - 비관적 락(for update + update)
     @PostMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-2")
     public void likePessimisticLock2(
             @PathVariable("articleId") Long articleId,
@@ -54,7 +54,7 @@ public class ArticleLikeController {
         articleLikeService.likePessimisticLock2(articleId, userId);
     }
 
-    // 좋아요 취소 - 비관적 락 for update + update
+    // 좋아요 취소 - 비관적 락(for update + update)
     @DeleteMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-2")
     public void unlikePessimisticLock2(
             @PathVariable("articleId") Long articleId,
@@ -63,7 +63,7 @@ public class ArticleLikeController {
         articleLikeService.unlikePessimisticLock2(articleId, userId);
     }
 
-    // 좋아요 생성 - 낙관적 락
+    // 좋아요 추가 - 낙관적 락(version 체크)
     @PostMapping("v1/article-likes/articles/{articleId}/users/{userId}/optimistic-lock")
     public void likeOptimisticLock(
             @PathVariable("articleId") Long articleId,
@@ -72,7 +72,7 @@ public class ArticleLikeController {
         articleLikeService.likeOptimisticLock(articleId, userId);
     }
 
-    // 좋아요 취소 - 낙관적 락
+    // 좋아요 취소 - 낙관적 락(version 체크)
     @DeleteMapping("v1/article-likes/articles/{articleId}/users/{userId}/optimistic-lock")
     public void unlikeOptimisticLock(
             @PathVariable("articleId") Long articleId,
