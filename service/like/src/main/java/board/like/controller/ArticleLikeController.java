@@ -19,21 +19,65 @@ public class ArticleLikeController {
         return articleLikeService.read(articleId, userId);
     }
 
-    // 좋아요 생성
-    @PostMapping("v1/article-likes/articles/{articleId}/users/{userId}")
-    public void like(
-            @PathVariable("articleId") Long articleId,
-            @PathVariable("userId") Long userId
+    // 좋아요 수 조회
+    @GetMapping("v1/article-likes/articles/{articleId}/count")
+    public Long count(
+            @PathVariable("articleId") Long articleId
     ) {
-        articleLikeService.like(articleId, userId);
+        return articleLikeService.count(articleId);
     }
 
-    // 좋아요 취소
-    @DeleteMapping("v1/article-likes/articles/{articleId}/users/{userId}")
-    public void unlike(
+    // 좋아요 생성 - 비관적 락 update
+    @PostMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-1")
+    public void likePessimisticLock1(
             @PathVariable("articleId") Long articleId,
             @PathVariable("userId") Long userId
     ) {
-        articleLikeService.unlike(articleId, userId);
+        articleLikeService.likePessimisticLock1(articleId, userId);
+    }
+
+    // 좋아요 취소 - 비관적 락 update
+    @DeleteMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-1")
+    public void unlikePessimisticLock1(
+            @PathVariable("articleId") Long articleId,
+            @PathVariable("userId") Long userId
+    ) {
+        articleLikeService.unlikePessimisticLock1(articleId, userId);
+    }
+
+    // 좋아요 생성 - 비관적 락 for update + update
+    @PostMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-2")
+    public void likePessimisticLock2(
+            @PathVariable("articleId") Long articleId,
+            @PathVariable("userId") Long userId
+    ) {
+        articleLikeService.likePessimisticLock2(articleId, userId);
+    }
+
+    // 좋아요 취소 - 비관적 락 for update + update
+    @DeleteMapping("v1/article-likes/articles/{articleId}/users/{userId}/pessimistic-lock-2")
+    public void unlikePessimisticLock2(
+            @PathVariable("articleId") Long articleId,
+            @PathVariable("userId") Long userId
+    ) {
+        articleLikeService.unlikePessimisticLock2(articleId, userId);
+    }
+
+    // 좋아요 생성 - 낙관적 락
+    @PostMapping("v1/article-likes/articles/{articleId}/users/{userId}/optimistic-lock")
+    public void likeOptimisticLock(
+            @PathVariable("articleId") Long articleId,
+            @PathVariable("userId") Long userId
+    ) {
+        articleLikeService.likeOptimisticLock(articleId, userId);
+    }
+
+    // 좋아요 취소 - 낙관적 락
+    @DeleteMapping("v1/article-likes/articles/{articleId}/users/{userId}/optimistic-lock")
+    public void unlikeOptimisticLock(
+            @PathVariable("articleId") Long articleId,
+            @PathVariable("userId") Long userId
+    ) {
+        articleLikeService.unlikeOptimisticLock(articleId, userId);
     }
 }
