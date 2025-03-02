@@ -1,7 +1,9 @@
 package board.comment.service;
 
+import board.comment.entity.ArticleCommentCount;
 import board.comment.entity.CommentPath;
 import board.comment.entity.CommentV2;
+import board.comment.repository.ArticleCommentCountRepository;
 import board.comment.repository.CommentRepositoryV2;
 import board.comment.service.request.CommentCreateRequestV2;
 import board.comment.service.response.CommentPageResponse;
@@ -21,6 +23,7 @@ import static java.util.function.Predicate.not;
 public class CommentServiceV2 {
     private final Snowflake snowflake = new Snowflake();
     private final CommentRepositoryV2 commentRepository;
+    private final ArticleCommentCountRepository articleCommentCountRepository;
 
     //댓글 생성
     @Transactional
@@ -39,6 +42,14 @@ public class CommentServiceV2 {
                         )
                 )
         );
+
+        //댓글 수 증가
+        int result = articleCommentCountRepository.increase(request.getArticleId());
+        if (result == 0) {
+            articleCommentCountRepository.save(
+                    ArticleCommentCount.init(request.getArticleId(), 1L)
+            );
+        }
 
         return CommentResponse.from(comment);
     }
@@ -85,6 +96,8 @@ public class CommentServiceV2 {
     //실제 삭제 처리
     private void delete(CommentV2 comment) {
         commentRepository.delete(comment);
+        //댓글 수 감소
+        articleCommentCountRepository.decrease(comment.getArticleId());
         if (!comment.isRoot()) {
             commentRepository.findByPath(comment.getCommentPath().getParentPath())
                     .filter(CommentV2::getDeleted)
@@ -112,5 +125,12 @@ public class CommentServiceV2 {
         return comments.stream()
                 .map(CommentResponse::from)
                 .toList();
+    }
+
+    //댓글 수 조회
+    public Long count(Long articleId) {
+        return articleCommentCountRepository.findById(articleId)
+                .map(ArticleCommentCount::getCommentCount)
+                .orElse(0L);
     }
 }
