@@ -24,6 +24,7 @@ public class HotArticleListRepository {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
+    // 인기글 추가
     public void add(Long articleId, LocalDateTime time, Long score, Long limit, Duration ttl) {
         redisTemplate.executePipelined((RedisCallback<?>) action -> {
             StringRedisConnection conn = (StringRedisConnection) action;
@@ -35,6 +36,11 @@ public class HotArticleListRepository {
         });
     }
 
+    // 인기글 삭제
+    public void remove(Long articleId, LocalDateTime time) {
+        redisTemplate.opsForZSet().remove(generateKey(time), String.valueOf(articleId));
+    }
+
     private String generateKey(LocalDateTime time) {
         return generateKey(TIME_FORMATTER.format(time));
     }
@@ -43,6 +49,7 @@ public class HotArticleListRepository {
         return KEY_FORMAT.formatted(dateStr);
     }
 
+    // 인기글 조회
     public List<Long> readAll(String dateStr) {
         return redisTemplate.opsForZSet()
                 .reverseRangeWithScores(generateKey(dateStr), 0, -1).stream()
