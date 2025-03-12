@@ -1,5 +1,9 @@
 package board.like.service;
 
+import board.common.event.EventType;
+import board.common.event.payload.ArticleLikedEventPayload;
+import board.common.event.payload.ArticleUnlikedEventPayload;
+import board.common.outboxmessagerelay.OutboxEventPublisher;
 import board.common.snowflake.Snowflake;
 import board.like.entity.ArticleLike;
 import board.like.entity.ArticleLikeCount;
@@ -15,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ArticleLikeService {
     private final Snowflake snowflake = new Snowflake();
     private final ArticleLikeRepository articleLikeRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
     private final ArticleLikeCountRepository articleLikeCountRepository;
 
     // 좋아요 조회
@@ -27,7 +32,7 @@ public class ArticleLikeService {
     // 좋아요 추가 - 비관적 락(update 구문)
     @Transactional
     public void likePessimisticLock1(Long articleId, Long userId) {
-        articleLikeRepository.save(
+        ArticleLike articleLike = articleLikeRepository.save(
                 ArticleLike.create(
                         snowflake.nextId(),
                         articleId,
@@ -43,6 +48,18 @@ public class ArticleLikeService {
                     ArticleLikeCount.init(articleId, 1L)
             );
         }
+
+        outboxEventPublisher.publish(
+                EventType.ARTICLE_LIKED,
+                ArticleLikedEventPayload.builder()
+                        .articleLikeId(articleLike.getArticleLikeId())
+                        .articleId(articleLike.getArticleId())
+                        .userId(articleLike.getUserId())
+                        .createdAt(articleLike.getCreatedAt())
+                        .articleLikeCount(count(articleLike.getArticleId()))
+                        .build(),
+                articleLike.getArticleId()
+        );
     }
 
     // 좋아요 취소 - 비관적 락(update 구문)
@@ -52,6 +69,17 @@ public class ArticleLikeService {
                 .ifPresent(articleLike -> {
                     articleLikeRepository.delete(articleLike);
                     articleLikeCountRepository.decrease(articleId);
+                    outboxEventPublisher.publish(
+                            EventType.ARTICLE_UNLIKED,
+                            ArticleUnlikedEventPayload.builder()
+                                    .articleLikeId(articleLike.getArticleLikeId())
+                                    .articleId(articleLike.getArticleId())
+                                    .userId(articleLike.getUserId())
+                                    .createdAt(articleLike.getCreatedAt())
+                                    .articleLikeCount(count(articleLike.getArticleId()))
+                                    .build(),
+                            articleLike.getArticleId()
+                    );
                 });
     }
 
