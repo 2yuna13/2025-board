@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = "board")
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "board")
-@ComponentScan(basePackages = "board.common.outboxmessagerelay")
+@ComponentScan(basePackages = "board")
 public class ViewApplication {
     public static void main(String[] args) {
         SpringApplication.run(ViewApplication.class, args);
