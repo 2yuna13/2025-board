@@ -32,7 +32,7 @@ public class ArticleQueryModel {
         return articleQueryModel;
     }
 
-    public static ArticleQueryModel create(ArticleClient .ArticleResponse article, Long commentCount, Long likeCount) {
+    public static ArticleQueryModel create(ArticleClient.ArticleResponse article, Long commentCount, Long likeCount) {
         ArticleQueryModel articleQueryModel = new ArticleQueryModel();
         articleQueryModel.articleId = article.getArticleId();
         articleQueryModel.title = article.getTitle();
